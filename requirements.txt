@@ -1,0 +1,22 @@
+# Core
+numpy
+scipy
+pandas
+scikit-learn
+joblib
+
+# Datasets, embeddings, fine-tuned reference model
+datasets
+zstandard
+sentence-transformers
+transformers
+torch
+
+# Energy measurement
+codecarbon
+nvidia-ml-py
+psutil
+
+# Ollama clients (Ollama itself must be installed separately)
+requests
+ollama
