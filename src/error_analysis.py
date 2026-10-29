@@ -135,6 +135,23 @@ def clip(s, w=68):
     return s[:w] + ("…" if len(s) > w else "")
 
 
+def safety_keyword_matches(prompts):
+    """Flag prompts containing selected safety-related keywords."""
+    terms = [
+        "hack", "steal", "meth", "weapon",
+        "bomb", "fraud", "phishing", "forgery",
+        "bypass", "malware", "poison"
+    ]
+
+    pattern = r"\b(?:" + "|".join(
+        re.escape(term) for term in terms
+    ) + r")\b"
+
+    return np.asarray([
+        bool(re.search(pattern, str(prompt), flags=re.IGNORECASE))
+        for prompt in prompts
+    ])
+
 def run(args):
     tr, te = load_data(args.sample)
     if os.path.exists(MODEL_PATH):
@@ -165,6 +182,36 @@ def run(args):
             tags = ",".join(k.split("/")[0] for k, v in cand.items() if v[i])
             print(f"{true[i]:>6.2f}{pred[i]:>7.2f}{resid[i]:>+7.2f}  "
                   f"[{tags}] {clip(prompts[i])}")
+            
+    
+    # Identify keyword-matched prompts in the held-out test set
+    safety_mask = safety_keyword_matches(prompts)
+
+    # Find the 100 largest absolute prediction errors
+    top_n = min(100, len(resid))
+    worst_indices = np.argsort(-np.abs(resid))[:top_n]
+
+    # Find the 100 largest underpredictions
+    under_indices = np.argsort(-resid)[:top_n]
+
+    # Calculate percentages
+    overall_pct = safety_mask.mean() * 100
+    worst_pct = safety_mask[worst_indices].mean() * 100
+    under_pct = safety_mask[under_indices].mean() * 100
+
+    print("\n== Safety Keyword Error Analysis ==")
+    print(f"Keyword matches in test set: {safety_mask.sum():,}")
+    print(f"Percentage of test set: {overall_pct:.2f}%")
+    print(f"Percentage among worst {top_n} errors: {worst_pct:.2f}%")
+    print(f"Percentage among top {top_n} underpredictions: {under_pct:.2f}%")
+    
+        # Compare average prediction errors between groups
+    matched_mae = np.mean(np.abs(resid[safety_mask]))
+    unmatched_mae = np.mean(np.abs(resid[~safety_mask]))
+
+    print(f"MAE (keyword-matched): {matched_mae:.3f}")
+    print(f"MAE (not matched): {unmatched_mae:.3f}")
+
 
     order = np.argsort(-np.abs(resid))
     show(f"Worst {args.top} misses (any direction)", order[:args.top])
