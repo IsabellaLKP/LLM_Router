@@ -1,0 +1,11 @@
+timestamp,prompt,difficulty_score,assigned_tier,assigned_model,latency_sec,tokens_generated,tokens_per_sec,status
+2026-11-10 23:37:17,What is the capital of France?,-4.3859,0,qwen2.5:0.5b,3.205,8,51.43,SUCCESS
+2026-11-10 23:37:20,"Hi, how are you doing today?",-2.8088,0,qwen2.5:0.5b,3.266,40,43.46,SUCCESS
+2026-11-10 23:37:23,List three red fruits.,-4.7604,0,qwen2.5:0.5b,2.783,25,40.08,SUCCESS
+2026-11-10 23:37:25,Translate 'Good morning' into Spanish.,-4.1482,0,qwen2.5:0.5b,2.538,14,38.98,SUCCESS
+2026-11-10 23:38:03,Write a Python function using numpy to calculate a moving average with a window of 5.,1.3857,2,llama3.1:8b,37.969,128,4.34,SUCCESS
+2026-11-10 23:38:20,Write a step-by-step guide on how to change a flat tire.,-0.2621,1,llama3.2:3b,17.08,128,10.31,SUCCESS
+2026-11-10 23:38:26,Summarize photosynthesizing plants using bullet points for key facts.,-1.8053,0,qwen2.5:0.5b,5.666,128,43.5,SUCCESS
+2026-11-10 23:38:31,"Generate a JSON object containing 5 movies. You must include 'title', 'year', 'director'.",-1.2031,0,qwen2.5:0.5b,4.932,128,46.16,SUCCESS
+2026-11-10 23:38:45,Analyze the main economic factors that led to the 2008 global financial crisis and critique the response.,0.3246,1,llama3.2:3b,14.156,128,10.79,SUCCESS
+2026-11-10 23:38:59,"Calculate compound interest on $5,000 at 4.5% over 10 years compounded monthly using A = P(1 + r/n)^(nt).",-0.6784,1,llama3.2:3b,13.679,128,11.18,SUCCESS

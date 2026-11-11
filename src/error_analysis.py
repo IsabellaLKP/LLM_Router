@@ -211,6 +211,85 @@ def run(args):
 
     print(f"MAE (keyword-matched): {matched_mae:.3f}")
     print(f"MAE (not matched): {unmatched_mae:.3f}")
+    
+    
+    # Analyze prediction errors by prompt length
+    word_counts = np.asarray([
+        len(str(prompt).split()) for prompt in prompts
+    ])
+
+    length_groups = {
+        "Short (1-20 words)": word_counts <= 20,
+        "Medium (21-100 words)": (word_counts > 20) & (word_counts <= 100),
+        "Long (101+ words)": word_counts > 100
+    }
+
+    print("\n== Prediction Error by Prompt Length ==")
+
+    for name, mask in length_groups.items():
+        if mask.sum() == 0:
+            continue
+
+        group_mae = np.mean(np.abs(resid[mask]))
+        group_residual = np.mean(resid[mask])
+
+        print(
+            f"{name:<25} "
+            f"n={mask.sum():>6,} "
+            f"MAE={group_mae:.3f} "
+            f"Mean residual={group_residual:+.3f}"
+        )
+        
+        
+    print("\n== Prompt Length Without Safety Keyword Matches ==")
+
+    for name, length_mask in length_groups.items():
+        # Exclude prompts matching our selected keywords
+        mask = length_mask & ~safety_mask
+
+        if mask.sum() == 0:
+            continue
+
+        group_mae = np.mean(np.abs(resid[mask]))
+
+        print(
+            f"{name:<25} "
+            f"n={mask.sum():>6,} "
+            f"MAE={group_mae:.3f}"
+        )
+        
+        
+    print("\n== Actual Difficulty Distribution by Length ==")
+
+    for name, mask in length_groups.items():
+        if mask.sum() == 0:
+            continue
+
+        group_true = true[mask]
+
+        print(
+            f"{name:<25} "
+            f"Mean={group_true.mean():+.3f} "
+            f"Std={group_true.std():.3f} "
+            f"Min={group_true.min():+.2f} "
+            f"Max={group_true.max():+.2f}"
+        )
+        
+        
+    print("\n== Typical vs Extreme Errors by Length ==")
+
+    for name, mask in length_groups.items():
+        if mask.sum() == 0:
+            continue
+
+        absolute_errors = np.abs(resid[mask])
+
+        print(
+            f"{name:<25} "
+            f"Median={np.median(absolute_errors):.3f} "
+            f"90th percentile={np.percentile(absolute_errors, 90):.3f}"
+        )
+
 
 
     order = np.argsort(-np.abs(resid))

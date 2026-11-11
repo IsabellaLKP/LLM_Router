@@ -201,6 +201,31 @@ def run(args):
             acc, adj, mf1 = bin_report(yte, p, nc, ed)
             print(f"{name:<22}{nc:>8}{acc:>8.3f}{adj:>10.3f}{mf1:>9.3f}")
 
+    # Evaluate the existing CPU router on short prompts (1–20 words).
+    word_counts = np.array([
+        len(re.findall(r"\b\w+\b", text))
+        for text in te_txt
+    ])
+
+    short_mask = (word_counts >= 1) & (word_counts <= 20)
+
+    y_short = yte[short_mask]
+    p_short = preds["TF-IDF + formula"][short_mask]
+
+    print("\n== Short-prompt performance (1–20 words) ==")
+    print(f"Number of short prompts: {len(y_short):,}")
+    print(f"MAE: {mean_absolute_error(y_short, p_short):.3f}")
+
+    for nc, edges in ((5, edges5), (3, edges3)):
+        acc, adjacent, macro_f1 = bin_report(
+            y_short, p_short, nc, edges
+        )
+        print(
+            f"{nc}-class accuracy: {acc:.3f} ({acc * 100:.1f}%)"
+            f" | adjacent: {adjacent:.3f}"
+            f" | macro-F1: {macro_f1:.3f}"
+        )
+
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
